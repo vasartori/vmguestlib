@@ -1,21 +1,21 @@
 #!/usr/bin/python
+"""
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
-### This program is free software; you can redistribute it and/or
-### modify it under the terms of the GNU General Public License
-### as published by the Free Software Foundation; either version 2
-### of the License, or (at your option) any later version.
-###
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-###
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-### Copyright 2013-2014 Dag Wieers <dag@wieers.com>
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+Copyright 2013-2014 Dag Wieers <dag@wieers.com>
+"""
 import vmguestlib
 import optparse
 import time
@@ -26,12 +26,12 @@ delay = 2
 count = -1
 
 parser = optparse.OptionParser(usage='usage: %prog [-a] [-c] [-m] delay count', version='%prog ' + __version__)
-parser.add_option( '-a', '--all', action='store_true',
-    dest='all', help='show all statistics (default)' )
-parser.add_option( '-c', '--cpu', action='store_true',
-    dest='cpu', help='show cpu statistics' )
-parser.add_option( '-m', '--mem', action='store_true',
-    dest='memory', help='show memory statistics' )
+parser.add_option('-a', '--all', action='store_true',
+                  dest='all', help='show all statistics (default)')
+parser.add_option('-c', '--cpu', action='store_true',
+                  dest='cpu', help='show cpu statistics')
+parser.add_option('-m', '--mem', action='store_true',
+                  dest='memory', help='show memory statistics')
 (options, args) = parser.parse_args()
 
 try:
@@ -39,7 +39,7 @@ try:
         delay = int(args[0])
     if len(args) > 1:
         count = int(args[1])
-except:
+except BaseException:
     parser.error('incorrect argument, try -h for the correct syntax')
 
 if options.all or (not options.cpu and not options.memory):
@@ -47,84 +47,89 @@ if options.all or (not options.cpu and not options.memory):
     options.memory = True
 
 gl = vmguestlib.VMGuestLib()
-gl.UpdateInfo()
+gl.update_info()
 
 if options.cpu:
-    OldElapsedMs = gl.GetElapsedMs()
-    OldStolenMs = gl.GetCpuStolenMs()
-    OldUsedMs = gl.GetCpuUsedMs()
+    old_elapsed_ms = gl.get_elapsed_ms()
+    old_stolen_ms = gl.get_cpu_stolen_ms()
+    old_used_ms = gl.get_cpu_used_ms()
+else:
+    old_elapsed_ms = None
+    old_stolen_ms = None
+    old_used_ms = None
 
 while count == -1 or count > 0:
 
     time.sleep(delay)
 
-    gl.UpdateInfo()
+    gl.update_info()
 
-    print time.asctime()
+    print(time.asctime())
 
     # TODO: Add clearscreen and bold/underline escape sequences
     if options.cpu:
-        NewElapsedMs = gl.GetElapsedMs()
-        NewStolenMs = gl.GetCpuStolenMs()
-        NewUsedMs = gl.GetCpuUsedMs()
+        new_elapsed_ms = gl.get_elapsed_ms()
+        new_stolen_ms = gl.get_cpu_stolen_ms()
+        new_used_ms = gl.get_cpu_used_ms()
 
         # Make sure that if time stands still we don't end up in infinity
-        if NewElapsedMs == OldElapsedMs:
-            UsedCpu = 0
-            StolenCpu = 0
-            EffectiveMhz = 0
+        if new_elapsed_ms == old_elapsed_ms:
+            used_cpu = 0
+            stolen_cpu = 0
+            effective_mhz = 0
         else:
-            UsedCpu = (NewUsedMs - OldUsedMs) * 100.0 / (NewElapsedMs - OldElapsedMs)
-            StolenCpu = (NewStolenMs - OldStolenMs) * 100.0 / (NewElapsedMs - OldElapsedMs)
-            EffectiveMhz = gl.GetHostProcessorSpeed() * (NewUsedMs - OldUsedMs) / (NewElapsedMs - OldElapsedMs)
+            used_cpu = (new_used_ms - old_used_ms) * 100.0 / (new_elapsed_ms - old_elapsed_ms)
+            stolen_cpu = (new_stolen_ms - old_stolen_ms) * 100.0 / (new_elapsed_ms - old_elapsed_ms)
+            effective_mhz = gl.get_host_processor_speed() * (new_used_ms - old_used_ms) / (
+                        new_elapsed_ms - old_elapsed_ms)
 
-        CpuLimit = gl.GetCpuLimitMHz()
+        CpuLimit = gl.get_cpu_limit_mhz()
 
-        print 'VM Processor'
-        print '    Processor Time: %.2f %%' % UsedCpu
-        print '    CPU stolen time: %.2f %%' % StolenCpu
-        print '    Effective VM Speed: %d MHz' % EffectiveMhz
-        print '    Host processor speed: %d MHz' % gl.GetHostProcessorSpeed()
-        print
+        print('VM Processor')
+        print('    Processor Time: %.2f %%' % used_cpu)
+        print('    CPU stolen time: %.2f %%' % stolen_cpu)
+        print('    Effective VM Speed: %d MHz' % effective_mhz)
+        print('    Host processor speed: %d MHz' % gl.get_host_processor_speed())
+        print("")
         if CpuLimit == -1 & 0xFFFFFFFF:
-            print '    Limit: unlimited'
+            print('    Limit: unlimited')
         else:
-            print '    Limit: %d MHz' % gl.GetCpuLimitMHz()
-        print '    Reservation: %d MHz' % gl.GetCpuReservationMHz()
-        print '    Shares: %d' % gl.GetCpuShares()
+            print('    Limit: %d MHz' % gl.get_cpu_limit_mhz())
+        print('    Reservation: %d MHz' % gl.get_cpu_reservation_mhz())
+        print('    Shares: %d' % gl.get_cpu_shares())
 
-        OldElapsedMs = NewElapsedMs
-        OldStolenMs = NewStolenMs
-        OldUsedMs = NewUsedMs
+        old_elapsed_ms = new_elapsed_ms
+        old_stolen_ms = new_stolen_ms
+        old_used_ms = new_used_ms
 
     if options.cpu and options.memory:
-        print
+        print("")
 
     if options.memory:
-        MemLimit = gl.GetMemLimitMB()
+        mem_limit = gl.get_mem_limit_mb()
 
-        print 'VM Memory'
-        print '    Active: %d MB' % gl.GetMemActiveMB()
-        print '    Ballooned: %d MB' % gl.GetMemBalloonedMB()
-        print '    Mapped: %d MB' % gl.GetMemMappedMB()
-        print '    Overhead: %d MB' % gl.GetMemOverheadMB()
-        print '    Shared: %d MB' % gl.GetMemSharedMB()
-        print '    Shared Saved: %d MB' % gl.GetMemSharedSavedMB()
-        print '    Swapped: %d MB' % gl.GetMemSwappedMB()
-        print '    Target Size: %d MB' % gl.GetMemTargetSizeMB()
-        print '    Used: %d MB' % gl.GetMemUsedMB()
-        print
-        if MemLimit == -1 & 0xFFFFFFFF:
-            print '    Limit: unlimited'
+        print('VM Memory')
+        print('    Active: %d MB' % gl.get_mem_active_mb())
+        print('    Ballooned: %d MB' % gl.get_mem_ballooned_mb())
+        print('    Mapped: %d MB' % gl.get_mem_mapped_mb())
+        print('    Overhead: %d MB' % gl.get_mem_overhead_mb())
+        print('    Shared: %d MB' % gl.get_mem_shared_mb())
+        print('    Shared Saved: %d MB' % gl.get_mem_shared_saved_mb())
+        print('    Swapped: %d MB' % gl.get_mem_swapped_mb())
+        print('    Target Size: %d MB' % gl.get_mem_target_size_mb())
+        print('    Used: %d MB' % gl.get_mem_used_mb())
+        print("")
+        if mem_limit == -1 & 0xFFFFFFFF:
+            print('    Limit: unlimited')
         else:
-            print '    Limit: %d MB' % MemLimit
-        print '    Reservation: %d MB' % gl.GetMemReservationMB()
-        print '    Shares: %d' % gl.GetMemShares()
-        print
+            print('    Limit: %d MB' % mem_limit)
+        print('    Reservation: %d MB' % gl.get_mem_reservation_mb())
+        print('    Shares: %d' % gl.get_mem_shares())
+        print("")
 
     if count > 0:
         count = count - 1
 
-gl.CloseHandle()
+gl.close_handle()
 
 # vim:ts=4:sw=4:et

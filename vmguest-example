@@ -3,23 +3,23 @@
 from vmguestlib import VMGuestLib
 
 gl = VMGuestLib()
-gl.UpdateInfo()
+gl.update_info()
 
-print 'CPU'
-print '  Stolen: %dms' % gl.GetCpuStolenMs()
-print '  Used: %dms' % gl.GetCpuUsedMs()
-print '  Elapsed: %dms' % gl.GetElapsedMs()
-print
+print('CPU')
+print('  Stolen: %dms' % gl.get_cpu_stolen_ms())
+print('  Used: %dms' % gl.get_cpu_used_ms())
+print('  Elapsed: %dms' % gl.get_elapsed_ms())
+print("")
 
-print 'Memory'
-print '  Active: %d MB' % gl.GetMemActiveMB()
-print '  Ballooned: %d MB' % gl.GetMemBalloonedMB()
-print '  Mapped: %d MB' % gl.GetMemMappedMB()
-print '  Overhead: %d MB' % gl.GetMemOverheadMB()
-print '  Shared: %d MB' % gl.GetMemSharedMB()
-print '  Shared saved: %d MB' % gl.GetMemSharedSavedMB()
-print '  Swapped: %d MB' % gl.GetMemSwappedMB()
-print '  Used: %d MB' % gl.GetMemUsedMB()
-print
+print('Memory')
+print('  Active: %d MB' % gl.get_mem_active_mb())
+print('  Ballooned: %d MB' % gl.get_mem_ballooned_mb())
+print('  Mapped: %d MB' % gl.get_mem_mapped_mb())
+print('  Overhead: %d MB' % gl.get_mem_overhead_mb())
+print('  Shared: %d MB' % gl.get_mem_shared_mb())
+print('  Shared saved: %d MB' % gl.get_mem_shared_saved_mb())
+print('  Swapped: %d MB' % gl.get_mem_swapped_mb())
+print('  Used: %d MB' % gl.get_mem_used_mb())
+print("")
 
-gl.CloseHandle()
+gl.close_handle()
