@@ -83,7 +83,7 @@ while count == -1 or count > 0:
             effective_mhz = gl.get_host_processor_speed() * (new_used_ms - old_used_ms) / (
                         new_elapsed_ms - old_elapsed_ms)
 
-        CpuLimit = gl.get_cpu_limit_mhz()
+        cpu_limit = gl.get_cpu_limit_mhz()
 
         print('VM Processor')
         print('    Processor Time: %.2f %%' % used_cpu)
@@ -91,7 +91,7 @@ while count == -1 or count > 0:
         print('    Effective VM Speed: %d MHz' % effective_mhz)
         print('    Host processor speed: %d MHz' % gl.get_host_processor_speed())
         print("")
-        if CpuLimit == -1 & 0xFFFFFFFF:
+        if cpu_limit == -1 & 0xFFFFFFFF:
             print('    Limit: unlimited')
         else:
             print('    Limit: %d MHz' % gl.get_cpu_limit_mhz())
